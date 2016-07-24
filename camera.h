@@ -20,10 +20,11 @@ class Camera {
   void processMousePosition(GLfloat mouseX, GLfloat mouseY);
   glm::mat4 getView(void);
 
- private:
   glm::vec3 cameraPos;
   glm::vec3 cameraFront;
   glm::vec3 cameraUp;
+
+ private:
   GLfloat lastX, lastY;
   GLfloat pitch, yaw;
   bool firstMouse;

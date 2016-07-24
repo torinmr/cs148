@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #define GLEW_STATIC
 #include <glm/glm.hpp>
@@ -12,14 +13,16 @@
 
 #include "camera.h"
 #include "model.h"
+#include "portal.h"
 #include "shader_loader.h"
 
 using namespace std;
 
 ShaderLoader *sl = nullptr;
+ShaderLoader *portalSl = nullptr;
 Camera *camera = nullptr;
 bool keys[1024];
-
+vector<Portal> portals;
 
 Model *myModel;
 
@@ -28,6 +31,8 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 bool init_resources(void) {
   sl = new ShaderLoader("vertex.glsl",
                         "fragment.glsl");
+  portalSl = new ShaderLoader("portal_vertex.glsl",
+                        "portal_fragment.glsl");
 
   myModel = new Model("resources/sand/Sand_Final.obj");
 
@@ -39,6 +44,9 @@ bool init_resources(void) {
 void free_resources(void) {
   if (sl != nullptr) {
     delete sl;
+  }
+  if (portalSl != nullptr) {
+    delete portalSl;
   }
   if (camera != nullptr) {
     delete camera;
@@ -79,6 +87,10 @@ void render() {
 
   glUseProgram(sl->getProgram());
   myModel->Draw(sl->getProgram());
+
+  for (GLuint i = 0; i < portals.size(); i++) {
+    portals[i].Draw(portalSl->getProgram());
+  }
 }
 
 
@@ -93,6 +105,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode,
 
   if (keys[GLFW_KEY_ESCAPE]) {
     glfwSetWindowShouldClose(window, GL_TRUE);
+  }
+
+  if (action == GLFW_RELEASE && key == GLFW_KEY_P) {
+    Ray ray;
+    ray.origin = camera->cameraPos;
+    ray.direction = camera->cameraFront;
+    Portal portal(ray, camera->cameraUp, true);
+    portals.push_back(portal);
   }
 }
 
