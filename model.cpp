@@ -27,8 +27,6 @@ Model::Model(string path)
 
 void Model::Draw(GLuint shader)
 {
-  this->meshes[1].Draw(shader);
-  return;
   for (GLuint i = 0; i < this->meshes.size(); i++) {
     this->meshes[i].Draw(shader);
   }
@@ -38,7 +36,12 @@ void Model::processNode(aiNode *node, const aiScene *scene)
 {
   for (GLuint i = 0; i < node->mNumMeshes; i++) {
     aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-    this->meshes.push_back(this->processMesh(mesh, scene));
+    // We skip over everything missing textures.
+    if (mesh->mMaterialIndex >= 0 &&
+        scene->mMaterials[mesh->mMaterialIndex]
+        ->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+      this->meshes.push_back(this->processMesh(mesh, scene));
+    }
   }
 
   for (GLuint i = 0; i < node->mNumChildren; i++) {
@@ -105,13 +108,13 @@ GLuint TextureFromFile(const char *path, string directory)
   string filename = directory + '/' + string(path);
 
   int width = 0, height = 0;
-  cout << filename << endl;
   unsigned char *image = SOIL_load_image(filename.c_str(), &width, &height,
                                          0, SOIL_LOAD_RGB);
   if (width == 0 && height == 0) {
     cout << "Couldn't load texture: " << filename << endl;
     exit(1);
   }
+
 
   GLuint texture;
   glGenTextures(1, &texture);
@@ -152,7 +155,6 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
       texture.id = TextureFromFile(str.C_Str(), this->directory);
       texture.type = typeName;
       texture.path = str;
-      cout << texture.id << " " << texture.type << " " << texture.path.C_Str() << endl;
       textures.push_back(texture);
       this->textures_loaded.push_back(texture);
     }

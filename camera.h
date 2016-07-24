@@ -8,12 +8,12 @@ class Camera {
  public:
   Camera(void)
     : cameraPos(glm::vec3(0.0f, 0.0f, 3.0f))
-    , cameraFront(glm::vec3(0.0f, 0.0f, -1.0f))
+    , cameraFront(glm::vec3(0.0f, 0.0f, 1.0f))
     , cameraUp(glm::vec3(0.0f, 1.0f, 0.0f))
     , lastX(400)
     , lastY(300)
     , pitch(0.0f)
-    , yaw(-90.0f)
+    , yaw(0.0f)
     , firstMouse(true)
     {}
   void processKeyboardInput(bool keys[], GLfloat deltaTime);

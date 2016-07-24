@@ -20,6 +20,7 @@ ShaderLoader *sl = nullptr;
 Camera *camera = nullptr;
 bool keys[1024];
 
+
 Model *myModel;
 
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -69,6 +70,12 @@ void render() {
 
   GLuint projectionLoc = glGetUniformLocation(sl->getProgram(), "projection");
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+  // Direction the light is shining in.
+  glm::vec3 lightDir(0.2, -1, 0.2);
+  lightDir = glm::normalize(lightDir);
+  GLuint lightDirLoc = glGetUniformLocation(sl->getProgram(), "lightDir");
+  glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
   glUseProgram(sl->getProgram());
   myModel->Draw(sl->getProgram());

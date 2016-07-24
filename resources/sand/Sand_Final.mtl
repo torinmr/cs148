@@ -211,7 +211,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd textures/noise_filter.png
 
 newmtl Rocks
 Ns 96.078431
@@ -222,7 +221,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Textures/ROCK/RockLayered0014_M.jpg
 
 newmtl SPARK
 Ns 96.078431
@@ -255,7 +253,6 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump textures/Plane006NormalsMap.png
-map_Kd textures/SciFi_Floor_Diffuse.png
 
 newmtl Shutter_Window
 Ns 96.078431
@@ -320,7 +317,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 0
-map_Kd textures/NULL.png
 
 newmtl Wall
 Ns 96.078431
@@ -353,7 +349,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Assets/SlimWindow/Texture/SlimWindow_diffuse.PNG
+map_Kd Assets/SlimWindow/Texture/SlimWindow_diffuse.png
 
 newmtl Window_Tiny
 Ns 96.078431
