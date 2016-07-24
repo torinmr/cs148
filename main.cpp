@@ -32,7 +32,7 @@ bool init_resources(void) {
   sl = new ShaderLoader("vertex.glsl",
                         "fragment.glsl");
   portalSl = new ShaderLoader("portal_vertex.glsl",
-                        "portal_fragment.glsl");
+                              "portal_fragment.glsl");
 
   myModel = new Model("resources/sand/Sand_Final.obj");
 
@@ -61,14 +61,13 @@ void render() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glm::mat4 model;
-  model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 
   glm::mat4 view = camera->getView();
 
   glm::mat4 projection;
   projection = glm::perspective(glm::radians(45.0f),
                                 (GLfloat) WIDTH / (GLfloat) HEIGHT,
-                                0.1f, 100.0f);
+                                0.1f, 1000.0f);
 
   GLuint modelLoc = glGetUniformLocation(sl->getProgram(), "model");
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -86,10 +85,10 @@ void render() {
   glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
   glUseProgram(sl->getProgram());
-  myModel->Draw(sl->getProgram());
+  //  myModel->Draw(sl->getProgram());
 
   for (GLuint i = 0; i < portals.size(); i++) {
-    portals[i].Draw(portalSl->getProgram());
+    portals[i].Draw(portalSl->getProgram(), view, projection);
   }
 }
 

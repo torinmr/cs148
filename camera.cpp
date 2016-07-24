@@ -3,7 +3,7 @@
 #include "camera.h"
 
 void Camera::processKeyboardInput(bool keys[], GLfloat deltaTime) {
-  GLfloat cameraSpeed = 5.0f * deltaTime;
+  GLfloat cameraSpeed = 25.0f * deltaTime;
 
   if (keys[GLFW_KEY_W]){
     cameraPos += cameraSpeed * cameraFront;
