@@ -12,6 +12,10 @@ using namespace std;
 
 Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures)
 {
+  cout << "Creating mesh" << endl;
+  cout << "Num vertices: " << vertices.size() << endl;
+  cout << "Num indices: " << indices.size() << endl;
+  cout << "Num textures: " << textures.size() << endl;
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;

@@ -28,7 +28,9 @@ bool init_resources(void) {
   sl = new ShaderLoader("vertex.glsl",
                         "fragment.glsl");
 
-  myModel = new Model("nanosuit/nanosuit.obj");
+  myModel = new Model("resources/sand/Sand_Final.obj");
+
+  cout << "Loaded" << endl;
 
   return true;
 }
@@ -46,12 +48,11 @@ void free_resources(void) {
 }
 
 void render() {
-  glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+  glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glm::mat4 model;
-  //  model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-  //  model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+  model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 
   glm::mat4 view = camera->getView();
 
