@@ -25,12 +25,16 @@ void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint bit) 
   glStencilFunc(GL_ALWAYS, 1, bit);
   glStencilMask(0xFF);
 
-  DrawCommon(shader, view, projection, 0.9f);
-  //  Print();
+  mat4 preModel;
+  // We bump it slightly off to avoid z-fighting.
+  preModel = translate(preModel, vec3(0.0f, 0.0f, -0.0001f));
+  preModel = scale(preModel, vec3(0.9f, 0.9f, 0.9f));
+
+  DrawCommon(shader, preModel, view, projection);
 }
 
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
-  glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0x00);
 
   glUseProgram(shader);
@@ -38,17 +42,16 @@ void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   GLint typeLocation = glGetUniformLocation(shader, "type");
   glUniform1i(typeLocation, type);
 
-  DrawCommon(shader, view, projection, 1.0f);
+  mat4 preModel;
+  DrawCommon(shader, preModel, view, projection);
 }
 
-void Portal::DrawCommon(GLuint shader, mat4 view, mat4 projection, GLfloat scale) {
+void Portal::DrawCommon(GLuint shader, mat4 preModel, mat4 view, mat4 projection) {
   glUseProgram(shader);
 
   mat4 model = lookAt(center, center + normal, up);
   model = affineInverse(model);
-  mat4 scaleMat;
-  scaleMat = glm::scale(scaleMat, vec3(scale, scale, scale));
-  model = model * scaleMat;
+  model = model * preModel;
 
 
   GLuint modelLoc = glGetUniformLocation(shader, "model");
@@ -84,8 +87,8 @@ void Portal::Setup() {
     0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
   };
   GLuint indices[] = {
-    0, 1, 3,
-    1, 2, 3,
+    3, 1, 0,
+    3, 2, 1,
   };
 
   glGenVertexArrays(1, &this->VAO);

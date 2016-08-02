@@ -112,13 +112,13 @@ void render() {
 
   for (GLuint i = 0; i < 2; i++) {
     if (portals[i] != nullptr) {
-      portals[i]->DrawStencil(portalStencilSl->getProgram(), view, projection, i+1);
+      portals[i]->Draw(portalSl->getProgram(), view, projection);
     }
   }
 
   for (GLuint i = 0; i < 2; i++) {
     if (portals[i] != nullptr) {
-      portals[i]->Draw(portalSl->getProgram(), view, projection);
+      portals[i]->DrawStencil(portalStencilSl->getProgram(), view, projection, i+1);
     }
   }
 
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_REPLACE);
 
   init_resources();
 

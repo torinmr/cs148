@@ -42,7 +42,7 @@ class Portal {
   bool IsLinked(void) { return linked != nullptr; }
 
  private:
-  void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection, GLfloat scale);
+  void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection, glm::mat4 preModel);
   void Setup(void);
 
   glm::vec3 center;
