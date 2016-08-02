@@ -27,7 +27,7 @@ vector<Portal> portals;
 
 Model *myModel;
 
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 1600, HEIGHT = 1000;
 
 bool init_resources(void) {
   sl = new ShaderLoader("vertex.glsl",
@@ -110,19 +110,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode,
 
   if (action == GLFW_RELEASE && key == GLFW_KEY_P) {
     Ray ray;
-    ray.origin[0] = camera->cameraPos[0];
-    ray.origin[1] = camera->cameraPos[1];
-    ray.origin[2] = camera->cameraPos[2];
-    ray.direction[0] = camera->cameraFront[0];
-    ray.direction[1] = camera->cameraFront[1];
-    ray.direction[2] = camera->cameraFront[2];
+    ray.origin = camera->cameraPos;
+    ray.direction = camera->cameraFront;
 
-    glm::vec3 up;
-    up[0] = camera->cameraUp[0];
-    up[1] = camera->cameraUp[1];
-    up[2] = camera->cameraUp[2];
-
-    Portal portal(ray, up, true);
+    Portal portal(ray, camera->cameraUp, true);
     portals.push_back(portal);
   }
 }

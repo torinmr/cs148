@@ -26,7 +26,7 @@ class Portal {
 
   // Create a portal in the direction of the given ray.
   Portal(const Ray &ray, glm::vec3 up, bool type)
-    : center(ray.origin + glm::normalize(ray.direction))
+    : center(ray.origin + 3.0f*glm::normalize(ray.direction))
     , normal(-glm::normalize(ray.direction))
     , up(up)
     , type(type)

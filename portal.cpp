@@ -24,8 +24,8 @@ void Portal::Print() {
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   glUseProgram(shader);
 
-  mat4 model;
-  model = translate(model, center);
+  mat4 model = lookAt(center, center + normal, up);
+  model = affineInverse(model);
 
   GLuint modelLoc = glGetUniformLocation(shader, "model");
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
