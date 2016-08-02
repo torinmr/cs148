@@ -35,11 +35,14 @@ class Portal {
       Setup();
     }
 
-  void DrawStencil(glm::mat4 view, glm::mat4 projection);
+  void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection, GLuint bit);
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
+  glm::mat4 GetView(void);
   void Print(void);
+  bool IsLinked(void) { return linked != nullptr; }
 
  private:
+  void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection, GLfloat scale);
   void Setup(void);
 
   glm::vec3 center;
@@ -48,7 +51,6 @@ class Portal {
   GLint type;
   Portal *linked;
 
-  GLfloat size;
   GLuint VAO, VBO, EBO;
 };
 

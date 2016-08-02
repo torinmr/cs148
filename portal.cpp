@@ -15,20 +15,41 @@ void Portal::Print() {
   cout << "Normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << endl;
   cout << "Up: (" << up[0] << ", " << up[1] << ", " << up[2] << ")" << endl;
   cout << "Type: " << type << endl;
-  cout << "Size: " << size << endl;
   cout << "VAO: " << VAO << endl;
   cout << "VBO: " << VBO << endl;
   cout << "EBO: " << EBO << endl;
+  cout << "Linked: " << linked << endl;
+}
+
+void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint bit) {
+  glStencilFunc(GL_ALWAYS, 1, bit);
+  glStencilMask(0xFF);
+
+  DrawCommon(shader, view, projection, 0.9f);
+  //  Print();
 }
 
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
+  glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+  glStencilMask(0x00);
+
   glUseProgram(shader);
 
   GLint typeLocation = glGetUniformLocation(shader, "type");
   glUniform1i(typeLocation, type);
 
+  DrawCommon(shader, view, projection, 1.0f);
+}
+
+void Portal::DrawCommon(GLuint shader, mat4 view, mat4 projection, GLfloat scale) {
+  glUseProgram(shader);
+
   mat4 model = lookAt(center, center + normal, up);
   model = affineInverse(model);
+  mat4 scaleMat;
+  scaleMat = glm::scale(scaleMat, vec3(scale, scale, scale));
+  model = model * scaleMat;
+
 
   GLuint modelLoc = glGetUniformLocation(shader, "model");
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
@@ -42,6 +63,10 @@ void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   glBindVertexArray(this->VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
+}
+
+mat4 Portal::GetView(void) {
+  return lookAt(linked->center, linked->center + linked->normal, linked->up);
 }
 
 void Portal::Setup() {
@@ -86,4 +111,5 @@ void Portal::Setup() {
                           (GLvoid*)(3*sizeof(GLfloat)));
   }
   glBindVertexArray(0);
+  Print();
 }

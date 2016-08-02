@@ -21,6 +21,7 @@ using namespace std;
 
 ShaderLoader *sl = nullptr;
 ShaderLoader *portalSl = nullptr;
+ShaderLoader *portalStencilSl = nullptr;
 Camera *camera = nullptr;
 bool keys[1024];
 Portal *portals[2];
@@ -35,6 +36,8 @@ bool init_resources(void) {
                         "fragment.glsl");
   portalSl = new ShaderLoader("portal_vertex.glsl",
                               "portal_fragment.glsl");
+  portalStencilSl = new ShaderLoader("portal_stencil_vertex.glsl",
+                                     "portal_stencil_fragment.glsl");
 
   myModel = new Model("resources/sand/Sand_Final.obj");
 
@@ -50,6 +53,9 @@ void free_resources(void) {
   if (portalSl != nullptr) {
     delete portalSl;
   }
+  if (portalStencilSl != nullptr) {
+    delete portalStencilSl;
+  }
   if (camera != nullptr) {
     delete camera;
   }
@@ -64,6 +70,8 @@ void free_resources(void) {
 }
 
 void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
+  glStencilMask(0x00);
+
   glUseProgram(shader);
 
   glm::mat4 model;
@@ -88,6 +96,7 @@ void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
 
 void render() {
   glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
+  glStencilMask(0xFF);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glm::mat4 view = camera->getView();
@@ -97,11 +106,28 @@ void render() {
                                 (GLfloat) WIDTH / (GLfloat) HEIGHT,
                                 0.1f, 1000.0f);
 
+  glStencilMask(0x00);
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
   renderScene(sl->getProgram(), view, projection);
 
   for (GLuint i = 0; i < 2; i++) {
     if (portals[i] != nullptr) {
+      portals[i]->DrawStencil(portalStencilSl->getProgram(), view, projection, i+1);
+    }
+  }
+
+  for (GLuint i = 0; i < 2; i++) {
+    if (portals[i] != nullptr) {
       portals[i]->Draw(portalSl->getProgram(), view, projection);
+    }
+  }
+
+  for (GLuint i = 0; i < 2; i++) {
+    if (portals[i] != nullptr && portals[i]->IsLinked()) {
+      view = portals[i]->GetView();
+      glClear(GL_DEPTH_BUFFER_BIT);
+      glStencilFunc(GL_EQUAL, i+1, 0xFF);
+      renderScene(sl->getProgram(), view, projection);
     }
   }
 }
@@ -198,6 +224,7 @@ int main(int argc, char* argv[])
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
   init_resources();
 
