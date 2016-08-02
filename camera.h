@@ -19,6 +19,7 @@ class Camera {
   void processKeyboardInput(bool keys[], GLfloat deltaTime);
   void processMousePosition(GLfloat mouseX, GLfloat mouseY);
   glm::mat4 getView(void);
+  void Print(void);
 
   glm::vec3 cameraPos;
   glm::vec3 cameraFront;

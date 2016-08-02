@@ -1,6 +1,8 @@
+#include <iostream>
 #include <GLFW/glfw3.h>
-
 #include "camera.h"
+
+using namespace std;
 
 void Camera::processKeyboardInput(bool keys[], GLfloat deltaTime) {
   GLfloat cameraSpeed = 25.0f * deltaTime;
@@ -45,6 +47,14 @@ void Camera::processMousePosition(GLfloat mouseX, GLfloat mouseY) {
   if (pitch < -89.0f) {
     pitch = -89.0f;
   }
+}
+
+void Camera::Print(void) {
+  cout << "Camera position:" << endl;
+  cout << "CameraPos: (" << cameraPos[0] << ", " << cameraPos[1] << ", " << cameraPos[2] << ")" << endl;
+  cout << "CameraFront: (" << cameraFront[0] << ", " << cameraFront[1] << ", " << cameraFront[2] << ")" << endl;
+  cout << "CameraUp: (" << cameraUp[0] << ", " << cameraUp[1] << ", " << cameraUp[2] << ")" << endl;
+  cout << endl;
 }
 
 glm::mat4 Camera::getView(void) {

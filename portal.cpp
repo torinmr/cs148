@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -9,13 +10,20 @@
 using namespace glm;
 using namespace std;
 
-Portal::Portal(const Ray &ray, vec3 up, bool type) {
-  Portal(ray.origin + normalize(ray.direction),
-         -normalize(ray.direction),
-         up, type);
+void Portal::Print() {
+  cout << "Center: (" << center[0] << ", " << center[1] << ", " << center[2] << ")" << endl;
+  cout << "Normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << endl;
+  cout << "Up: (" << up[0] << ", " << up[1] << ", " << up[2] << ")" << endl;
+  cout << "Type: " << type << endl;
+  cout << "Size: " << size << endl;
+  cout << "VAO: " << VAO << endl;
+  cout << "VBO: " << VBO << endl;
+  cout << "EBO: " << EBO << endl;
 }
 
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
+  glUseProgram(shader);
+
   mat4 model;
   model = translate(model, center);
 
@@ -28,20 +36,21 @@ void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   GLuint projectionLoc = glGetUniformLocation(shader, "projection");
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 
-  glUseProgram(shader);
   glBindVertexArray(this->VAO);
-  glDrawElements(GL_TRIANGLES, 3 /* Must match below */, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
 void Portal::Setup(void) {
   GLfloat vertices[] = {
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+    0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+    0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
   };
   GLuint indices[] = {
-    0, 1, 2, /* Must match above */
+    0, 1, 3,
+    1, 2, 3,
   };
 
   glGenVertexArrays(1, &this->VAO);
@@ -55,18 +64,18 @@ void Portal::Setup(void) {
                  vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
-                 indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Vertex positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat),
                           (GLvoid*) 0);
     // Vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat),
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat),
                           (GLvoid*)(3*sizeof(GLfloat)));
   }
   glBindVertexArray(0);
+
   cout << "Created portal" << endl;
 }

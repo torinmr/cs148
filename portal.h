@@ -14,7 +14,7 @@ struct Ray {
 class Portal {
  public:
   // Create portal at a particular location.
-   Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, bool type)
+  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, bool type)
     : center(center)
     , normal(normal)
     , up(up)
@@ -24,10 +24,19 @@ class Portal {
       Setup();
     }
 
-  // Create a portal on the nearest surface found by ray casting.
-  Portal(const Ray &ray, glm::vec3 up, bool type);
+  // Create a portal in the direction of the given ray.
+  Portal(const Ray &ray, glm::vec3 up, bool type)
+    : center(ray.origin + glm::normalize(ray.direction))
+    , normal(-glm::normalize(ray.direction))
+    , up(up)
+    , type(type)
+    , size(1.0f)
+    {
+      Setup();
+    }
 
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
+  void Print(void);
 
  private:
   void Setup(void);

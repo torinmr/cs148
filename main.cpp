@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <SOIL.h>
@@ -60,6 +61,8 @@ void render() {
   glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  glUseProgram(sl->getProgram());
+
   glm::mat4 model;
 
   glm::mat4 view = camera->getView();
@@ -84,8 +87,7 @@ void render() {
   GLuint lightDirLoc = glGetUniformLocation(sl->getProgram(), "lightDir");
   glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
-  glUseProgram(sl->getProgram());
-  //  myModel->Draw(sl->getProgram());
+  myModel->Draw(sl->getProgram());
 
   for (GLuint i = 0; i < portals.size(); i++) {
     portals[i].Draw(portalSl->getProgram(), view, projection);
@@ -108,9 +110,19 @@ void keyCallback(GLFWwindow* window, int key, int scancode,
 
   if (action == GLFW_RELEASE && key == GLFW_KEY_P) {
     Ray ray;
-    ray.origin = camera->cameraPos;
-    ray.direction = camera->cameraFront;
-    Portal portal(ray, camera->cameraUp, true);
+    ray.origin[0] = camera->cameraPos[0];
+    ray.origin[1] = camera->cameraPos[1];
+    ray.origin[2] = camera->cameraPos[2];
+    ray.direction[0] = camera->cameraFront[0];
+    ray.direction[1] = camera->cameraFront[1];
+    ray.direction[2] = camera->cameraFront[2];
+
+    glm::vec3 up;
+    up[0] = camera->cameraUp[0];
+    up[1] = camera->cameraUp[1];
+    up[2] = camera->cameraUp[2];
+
+    Portal portal(ray, up, true);
     portals.push_back(portal);
   }
 }
