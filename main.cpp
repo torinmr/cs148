@@ -63,20 +63,10 @@ void free_resources(void) {
   }
 }
 
-void render() {
-  glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  glUseProgram(sl->getProgram());
+void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
+  glUseProgram(shader);
 
   glm::mat4 model;
-
-  glm::mat4 view = camera->getView();
-
-  glm::mat4 projection;
-  projection = glm::perspective(glm::radians(45.0f),
-                                (GLfloat) WIDTH / (GLfloat) HEIGHT,
-                                0.1f, 1000.0f);
 
   GLuint modelLoc = glGetUniformLocation(sl->getProgram(), "model");
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -93,7 +83,21 @@ void render() {
   GLuint lightDirLoc = glGetUniformLocation(sl->getProgram(), "lightDir");
   glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
-  myModel->Draw(sl->getProgram());
+  myModel->Draw(shader);
+}
+
+void render() {
+  glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glm::mat4 view = camera->getView();
+
+  glm::mat4 projection;
+  projection = glm::perspective(glm::radians(45.0f),
+                                (GLfloat) WIDTH / (GLfloat) HEIGHT,
+                                0.1f, 1000.0f);
+
+  renderScene(sl->getProgram(), view, projection);
 
   for (GLuint i = 0; i < 2; i++) {
     if (portals[i] != nullptr) {
@@ -193,6 +197,7 @@ int main(int argc, char* argv[])
   glfwSetCursorPosCallback(window, mouseCallback);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
 
   init_resources();
 

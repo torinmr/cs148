@@ -35,6 +35,7 @@ class Portal {
       Setup();
     }
 
+  void DrawStencil(glm::mat4 view, glm::mat4 projection);
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
   void Print(void);
 
