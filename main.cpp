@@ -23,7 +23,8 @@ ShaderLoader *sl = nullptr;
 ShaderLoader *portalSl = nullptr;
 Camera *camera = nullptr;
 bool keys[1024];
-vector<Portal> portals;
+Portal *portals[2];
+GLint lastPortal = -1;
 
 Model *myModel;
 
@@ -54,6 +55,11 @@ void free_resources(void) {
   }
   if (myModel != nullptr) {
     delete myModel;
+  }
+  for (int i = 0; i < 2; i++) {
+    if (portals[i] != nullptr) {
+      delete portals[i];
+    }
   }
 }
 
@@ -89,8 +95,10 @@ void render() {
 
   myModel->Draw(sl->getProgram());
 
-  for (GLuint i = 0; i < portals.size(); i++) {
-    portals[i].Draw(portalSl->getProgram(), view, projection);
+  for (GLuint i = 0; i < 2; i++) {
+    if (portals[i] != nullptr) {
+      portals[i]->Draw(portalSl->getProgram(), view, projection);
+    }
   }
 }
 
@@ -113,8 +121,16 @@ void keyCallback(GLFWwindow* window, int key, int scancode,
     ray.origin = camera->cameraPos;
     ray.direction = camera->cameraFront;
 
-    Portal portal(ray, camera->cameraUp, true);
-    portals.push_back(portal);
+    if (lastPortal == -1) {
+      cout << "Creating portal, no existing portal to link." << endl;
+      portals[0] = new Portal(ray, camera->cameraUp, 0, nullptr);
+      lastPortal = 0;
+    } else {
+      cout << "Creating portal, linked to portal " << lastPortal << "." << endl;
+      GLint nextPortal = (lastPortal + 1) % 2;
+      portals[nextPortal] = new Portal(ray, camera->cameraUp, nextPortal, portals[lastPortal]);
+      lastPortal = nextPortal;
+    }
   }
 }
 

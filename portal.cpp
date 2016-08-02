@@ -24,6 +24,9 @@ void Portal::Print() {
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   glUseProgram(shader);
 
+  GLint typeLocation = glGetUniformLocation(shader, "type");
+  glUniform1i(typeLocation, type);
+
   mat4 model = lookAt(center, center + normal, up);
   model = affineInverse(model);
 
@@ -41,7 +44,14 @@ void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   glBindVertexArray(0);
 }
 
-void Portal::Setup(void) {
+void Portal::Setup() {
+  if (linked != nullptr) {
+    if (linked->linked != nullptr) {
+      delete linked->linked;
+    }
+    linked->linked = this;
+  }
+
   GLfloat vertices[] = {
     -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -76,6 +86,4 @@ void Portal::Setup(void) {
                           (GLvoid*)(3*sizeof(GLfloat)));
   }
   glBindVertexArray(0);
-
-  cout << "Created portal" << endl;
 }

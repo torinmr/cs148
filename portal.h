@@ -14,23 +14,23 @@ struct Ray {
 class Portal {
  public:
   // Create portal at a particular location.
-  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, bool type)
+  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, GLint type, Portal *linked)
     : center(center)
     , normal(normal)
     , up(up)
     , type(type)
-    , size(1.0f)
+    , linked(linked)
     {
       Setup();
     }
 
   // Create a portal in the direction of the given ray.
-  Portal(const Ray &ray, glm::vec3 up, bool type)
+   Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked)
     : center(ray.origin + 3.0f*glm::normalize(ray.direction))
     , normal(-glm::normalize(ray.direction))
     , up(up)
     , type(type)
-    , size(1.0f)
+    , linked(linked)
     {
       Setup();
     }
@@ -44,7 +44,9 @@ class Portal {
   glm::vec3 center;
   glm::vec3 normal;
   glm::vec3 up;
-  bool type;
+  GLint type;
+  Portal *linked;
+
   GLfloat size;
   GLuint VAO, VBO, EBO;
 };
