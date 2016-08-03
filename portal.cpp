@@ -22,7 +22,7 @@ void Portal::Print() {
 }
 
 void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint bit) {
-  glStencilFunc(GL_ALWAYS, 1, bit);
+  glStencilFunc(GL_ALWAYS, bit, 0xFF);
   glStencilMask(0xFF);
 
   mat4 preModel;
