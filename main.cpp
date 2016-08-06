@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "model.h"
 #include "portal.h"
+#include "presentation.h"
 #include "shader_loader.h"
 
 using namespace std;
@@ -122,16 +123,17 @@ void render() {
     }
   }
 
-  for (GLuint i = 0; i < 2; i++) {
-    if (portals[i] != nullptr && portals[i]->IsLinked()) {
-      view = portals[i]->GetView();
-      glClear(GL_DEPTH_BUFFER_BIT);
-      glStencilFunc(GL_EQUAL, i+1, 0xFF);
-      renderScene(sl->getProgram(), view, projection);
+  if (getPresentationStage() >= 1) {
+    for (GLuint i = 0; i < 2; i++) {
+      if (portals[i] != nullptr && portals[i]->IsLinked()) {
+        view = portals[i]->GetView();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glStencilFunc(GL_EQUAL, i+1, 0xFF);
+        renderScene(sl->getProgram(), view, projection);
+      }
     }
   }
 }
-
 
 void keyCallback(GLFWwindow* window, int key, int scancode,
                  int action, int mode)
@@ -146,20 +148,77 @@ void keyCallback(GLFWwindow* window, int key, int scancode,
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
-  if (action == GLFW_RELEASE && key == GLFW_KEY_P) {
-    Ray ray;
-    ray.origin = camera->cameraPos;
-    ray.direction = camera->cameraFront;
+  if (action == GLFW_RELEASE) {
+    switch (key) {
+    case GLFW_KEY_P: {
+      Ray ray;
+      ray.origin = camera->cameraPos;
+      ray.direction = camera->cameraFront;
 
-    if (lastPortal == -1) {
-      cout << "Creating portal, no existing portal to link." << endl;
-      portals[0] = new Portal(ray, camera->cameraUp, 0, nullptr);
-      lastPortal = 0;
-    } else {
-      cout << "Creating portal, linked to portal " << lastPortal << "." << endl;
-      GLint nextPortal = (lastPortal + 1) % 2;
-      portals[nextPortal] = new Portal(ray, camera->cameraUp, nextPortal, portals[lastPortal]);
-      lastPortal = nextPortal;
+      if (lastPortal == -1) {
+        cout << "Creating portal, no existing portal to link." << endl;
+        portals[0] = new Portal(ray, camera->cameraUp, 0, nullptr);
+        lastPortal = 0;
+      } else {
+        cout << "Creating portal, linked to portal " << lastPortal << "." << endl;
+        GLint nextPortal = (lastPortal + 1) % 2;
+        portals[nextPortal] = new Portal(ray, camera->cameraUp, nextPortal, portals[lastPortal]);
+        lastPortal = nextPortal;
+      }
+      break;
+    }
+    case GLFW_KEY_0: {
+      setPresentationStage(0);
+      cout << "Setting presentation stage to 0" << endl;
+      break;
+    }
+    case GLFW_KEY_1: {
+      setPresentationStage(1);
+      cout << "Setting presentation stage to 1" << endl;
+      break;
+    }
+    case GLFW_KEY_2: {
+      setPresentationStage(2);
+      cout << "Setting presentation stage to 2" << endl;
+      break;
+    }
+    case GLFW_KEY_3: {
+      setPresentationStage(3);
+      cout << "Setting presentation stage to 3" << endl;
+      break;
+    }
+    case GLFW_KEY_4: {
+      setPresentationStage(4);
+      cout << "Setting presentation stage to 4" << endl;
+      break;
+    }
+    case GLFW_KEY_5: {
+      setPresentationStage(5);
+      cout << "Setting presentation stage to 5" << endl;
+      break;
+    }
+    case GLFW_KEY_6: {
+      setPresentationStage(6);
+      cout << "Setting presentation stage to 6" << endl;
+      break;
+    }
+    case GLFW_KEY_7: {
+      setPresentationStage(7);
+      cout << "Setting presentation stage to 7" << endl;
+      break;
+    }
+    case GLFW_KEY_8: {
+      setPresentationStage(8);
+      cout << "Setting presentation stage to 8" << endl;
+      break;
+    }
+    case GLFW_KEY_9: {
+      setPresentationStage(9);
+      cout << "Setting presentation stage to 9" << endl;
+      break;
+    }
+    default:
+      break;
     }
   }
 }

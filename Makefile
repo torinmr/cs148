@@ -6,16 +6,19 @@ LDLIBS=-lGLEW -lGL -lglfw3 $(shell pkg-config --static --libs glfw3 | sed s/-l\ 
 
 all: main
 
-main: main.o shader_loader.o camera.o model.o mesh.o portal.o
-	$(CC) main.o shader_loader.o camera.o mesh.o model.o portal.o -o main $(LDLIBS)
+main: main.o shader_loader.o camera.o model.o mesh.o portal.o presentation.o *.h
+	$(CC) main.o shader_loader.o camera.o mesh.o model.o portal.o presentation.o -o main $(LDLIBS)
 
-main.o: main.cpp
+main.o: main.cpp presentation.h
 	$(CC) $(CPPFLAGS) main.cpp
 
-portal.o: portal.cpp portal.h
+portal.o: portal.cpp portal.h presentation.h shader_loader.h
 	$(CC) $(CPPFLAGS) portal.cpp
 
-model.o: model.cpp model.h
+presentation.o: presentation.cpp presentation.h
+	$(CC) $(CPPFLAGS) presentation.cpp
+
+model.o: model.cpp model.h mesh.h
 	$(CC) $(CPPFLAGS) model.cpp
 
 mesh.o: mesh.cpp mesh.h

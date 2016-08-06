@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "portal.h"
+#include "presentation.h"
 #include "shader_loader.h"
 
 using namespace glm;
