@@ -14,32 +14,16 @@ struct Ray {
 class Portal {
  public:
   // Create portal at a particular location.
-  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, GLint type, Portal *linked)
-    : center(center)
-    , normal(normal)
-    , up(up)
-    , type(type)
-    , linked(linked)
-    {
-      Setup();
-    }
+  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, GLint type, Portal *linked);
 
   // Create a portal in the direction of the given ray.
-   Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked)
-    : center(ray.origin + 3.0f*glm::normalize(ray.direction))
-    , normal(-glm::normalize(ray.direction))
-    , up(up)
-    , type(type)
-    , linked(linked)
-    {
-      Setup();
-    }
+  Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked);
 
   void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection, GLuint bit);
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
-  glm::mat4 GetView(void);
-  void Print(void);
+  glm::mat4 GetView(glm::vec3 incomingView);
   bool IsLinked(void) { return linked != nullptr; }
+  void Print(void);
 
  private:
   void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection, glm::mat4 preModel);

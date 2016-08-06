@@ -126,7 +126,7 @@ void render() {
   if (getPresentationStage() >= 1) {
     for (GLuint i = 0; i < 2; i++) {
       if (portals[i] != nullptr && portals[i]->IsLinked()) {
-        view = portals[i]->GetView();
+        view = portals[i]->GetView(camera->cameraFront);
         glClear(GL_DEPTH_BUFFER_BIT);
         glStencilFunc(GL_EQUAL, i+1, 0xFF);
         renderScene(sl->getProgram(), view, projection);

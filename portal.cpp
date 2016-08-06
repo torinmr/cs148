@@ -11,6 +11,27 @@
 using namespace glm;
 using namespace std;
 
+Portal::Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up,
+               GLint type, Portal *linked)
+  : center(center)
+  , normal(normal)
+  , up(up)
+  , type(type)
+  , linked(linked)
+{
+      Setup();
+}
+
+Portal::Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked)
+  : center(ray.origin + 3.0f*glm::normalize(ray.direction))
+  , normal(-glm::normalize(ray.direction))
+    , up(up)
+  , type(type)
+  , linked(linked)
+{
+  Setup();
+}
+
 void Portal::Print() {
   cout << "Center: (" << center[0] << ", " << center[1] << ", " << center[2] << ")" << endl;
   cout << "Normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << endl;
@@ -69,8 +90,15 @@ void Portal::DrawCommon(GLuint shader, mat4 preModel, mat4 view, mat4 projection
   glBindVertexArray(0);
 }
 
-mat4 Portal::GetView(void) {
-  return lookAt(linked->center, linked->center + linked->normal, linked->up);
+mat4 Portal::GetView(glm::vec3 incomingDirection) {
+  glm::vec3 outgoingDirection;
+  if (getPresentationStage() >= 2) {
+
+  } else {
+    outgoingDirection = linked->normal;
+  }
+
+  return lookAt(linked->center, linked->center + outgoingDirection, linked->up);
 }
 
 void Portal::Setup() {
