@@ -35,8 +35,10 @@ Portal::Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked)
 }
 
 void Portal::Print() {
-  cout << "Center: (" << center[0] << ", " << center[1] << ", " << center[2] << ")" << endl;
-  cout << "Normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << endl;
+  cout << "Center: (" << center[0] << ", " << center[1] << ", " << center[2]
+       << ")" << endl;
+  cout << "Normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2]
+       << ")" << endl;
   cout << "Up: (" << up[0] << ", " << up[1] << ", " << up[2] << ")" << endl;
   cout << "Type: " << type << endl;
   cout << "VAO: " << VAO << endl;
@@ -45,7 +47,8 @@ void Portal::Print() {
   cout << "Linked: " << linked << endl;
 }
 
-void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint bit) {
+void Portal::DrawStencil(GLuint shader, mat4 view,
+                         mat4 projection, GLuint bit) {
   glStencilFunc(GL_ALWAYS, bit, 0xFF);
   glStencilMask(0xFF);
 
@@ -70,7 +73,8 @@ void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
   DrawCommon(shader, preModel, view, projection);
 }
 
-void Portal::DrawCommon(GLuint shader, mat4 preModel, mat4 view, mat4 projection) {
+void Portal::DrawCommon(GLuint shader, mat4 preModel,
+                        mat4 view, mat4 projection) {
   glUseProgram(shader);
 
   mat4 model = lookAt(center, center + normal, up);
@@ -92,55 +96,70 @@ void Portal::DrawCommon(GLuint shader, mat4 preModel, mat4 view, mat4 projection
   glBindVertexArray(0);
 }
 
-mat4 Portal::GetView(glm::vec3 incomingDirection) {
-  glm::vec3 outgoingDirection;
-  if (getPresentationStage() >= 2) {
-    // To calculate the correct view vector out of the linked portal, we use the
-    // following observation: if the portals we faced back to back, with their
-    // normals pointing in precisely opposite directions, then we would not need
-    // to modify the view direction at all. Thus, to calculate the correct
-    // outgoing view direction, we figure out what rotation would need to be
-    // applied to a hypothetical perfectly-aligned outgoing portal to transform
-    // it into the actual outgoing portal, and then apply this rotation to the
-    // view vector.
-    //
-    // Algorithm:
-    //
-    // Given incoming vector v1 and normal vectors n1 and n2 of the incoming and
-    // outgoing portals, we calculate outgoing vector v2 as follows:
-    //
-    // rotation_axis = -n1 cross n2
-    // rotation_angle = acos(-n1 dot n2)
-    // v2 = v1.rotate(rotation_axis, rotation_angle)
+vec3 Portal::ReflectThroughPortal(glm::vec3 incomingVector, bool verbose) {
+  // To calculate the correct view vector out of the linked portal, we use the
+  // following observation: if the portals we faced back to back, with their
+  // normals pointing in precisely opposite directions, then we would not need
+  // to modify the view direction at all. Thus, to calculate the correct
+  // outgoing view direction, we figure out what rotation would need to be
+  // applied to a hypothetical perfectly-aligned outgoing portal to transform
+  // it into the actual outgoing portal, and then apply this rotation to the
+  // view vector.
+  //
+  // Algorithm:
+  //
+  // Given incoming vector v1 and normal vectors n1 and n2 of the incoming and
+  // outgoing portals, we calculate outgoing vector v2 as follows:
+  //
+  // rotation_axis = -n1 cross n2
+  // rotation_angle = acos(-n1 dot n2)
+  // v2 = v1.rotate(rotation_axis, rotation_angle)
 
-    vec3 n1 = this->normal;
-    vec3 n2 = this->linked->normal;
-    vec3 v1 = incomingDirection;
+  vec3 n1 = this->normal;
+  vec3 n2 = this->linked->normal;
+  vec3 v1 = incomingVector;
+  vec3 negative_n1 = -n1;
+  vec3 rotation_axis = normalize(cross(negative_n1, n2));
+  if (n1 == n2 || n1 == -n2) {
+    vec3 up_rotation_axis = normalize(cross(normal, up));
+    rotation_axis = rotate(normal, 3.14159f/2.0f, up_rotation_axis);
+  }
+  GLfloat rotation_angle = orientedAngle(negative_n1, n2, rotation_axis);
+  vec3 v2 = rotate(v1, rotation_angle, rotation_axis);
 
+  if (verbose) {
     cout << endl;
     cout << "n1: " << n1.x << " " << n1.y << " " << n1.z << endl;
     cout << "n2: " << n2.x << " " << n2.y << " " << n2.z << endl;
-
-    vec3 negative_n1 = -n1;
-    vec3 rotation_axis = normalize(cross(negative_n1, n2));
-    if (n1 == n2 || n1 == -n2) {
-      // cout << "Special case" << endl;
-      vec3 up_rotation_axis = normalize(cross(normal, up));
-      rotation_axis = rotate(normal, 3.14159f/2.0f, up_rotation_axis);
-    }
-    // cout << "rotation_axis: " << rotation_axis.x << " " << rotation_axis.y << " " << rotation_axis.z << endl;
-    float rotation_angle =
-      orientedAngle(negative_n1, n2, rotation_axis);
-    // cout << "Rotation_angle: " << rotation_angle << endl;
-    // cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << endl;
-    vec3 v2 = rotate(v1, rotation_angle, rotation_axis);
-    // cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << endl;
-    outgoingDirection = v2;
-  } else {
-    outgoingDirection = linked->normal;
+    cout << "rotation_axis: " << rotation_axis.x << " " << rotation_axis.y
+         << " " << rotation_axis.z << endl;
+    cout << "Rotation_angle: " << rotation_angle << endl;
+    cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << endl;
+    cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << endl;
   }
 
-  return lookAt(linked->center, linked->center + outgoingDirection, linked->up);
+  return normalize(v2);
+}
+
+mat4 Portal::GetView(Camera *camera) {
+  vec3 outgoingDirection;
+  if (getPresentationStage() >= 2) {
+    outgoingDirection = this->ReflectThroughPortal(camera->cameraFront, false);
+  } else {
+    outgoingDirection = this->linked->normal;
+  }
+
+  vec3 position;
+  if (getPresentationStage() >= 3) {
+    vec3 vecToPortal = normalize(this->center - camera->cameraPos);
+    vec3 vecFromPortal = this->ReflectThroughPortal(vecToPortal, false);
+    GLfloat distToPortal = distance(camera->cameraPos, this->center);
+    position = this->linked->center - vecFromPortal*distToPortal;
+  } else {
+    position = this->linked->center;
+  }
+
+  return lookAt(position, position + outgoingDirection, this->linked->up);
 }
 
 void Portal::Setup() {

@@ -119,14 +119,22 @@ void render() {
 
   for (GLuint i = 0; i < 2; i++) {
     if (portals[i] != nullptr) {
-      portals[i]->DrawStencil(portalStencilSl->getProgram(), view, projection, i+1);
+      portals[i]->DrawStencil(portalStencilSl->getProgram(),
+                              view, projection, i+1);
     }
   }
 
   if (getPresentationStage() >= 1) {
     for (GLuint i = 0; i < 2; i++) {
       if (portals[i] != nullptr && portals[i]->IsLinked()) {
-        view = portals[i]->GetView(camera->cameraFront);
+        view = portals[i]->GetView(camera);
+        if (getPresentationStage() >= 3) {
+          GLfloat distToPortal = distance(camera->cameraPos,
+                                          portals[i]->center);
+          projection = glm::perspective(glm::radians(45.0f),
+                                        (GLfloat) WIDTH / (GLfloat) HEIGHT,
+                                        distToPortal+0.001f, 1000.0f);
+        }
         glClear(GL_DEPTH_BUFFER_BIT);
         glStencilFunc(GL_EQUAL, i+1, 0xFF);
         renderScene(sl->getProgram(), view, projection);

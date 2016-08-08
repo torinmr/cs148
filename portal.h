@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <iostream>
+
+#include "camera.h"
+
 using namespace std;
 
 struct Ray {
@@ -14,24 +17,29 @@ struct Ray {
 class Portal {
  public:
   // Create portal at a particular location.
-  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up, GLint type, Portal *linked);
+  Portal(glm::vec3 center, glm::vec3 normal, glm::vec3 up,
+         GLint type, Portal *linked);
 
   // Create a portal in the direction of the given ray.
   Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked);
 
-  void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection, GLuint bit);
+  void DrawStencil(GLuint shader, glm::mat4 view,
+                   glm::mat4 projection, GLuint bit);
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
-  glm::mat4 GetView(glm::vec3 incomingView);
+  glm::mat4 GetView(Camera *camera);
   bool IsLinked(void) { return linked != nullptr; }
   void Print(void);
-
- private:
-  void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection, glm::mat4 preModel);
-  void Setup(void);
 
   glm::vec3 center;
   glm::vec3 normal;
   glm::vec3 up;
+
+ private:
+  void DrawCommon(GLuint shader, glm::mat4 view, glm::mat4 projection,
+                  glm::mat4 preModel);
+  glm::vec3 ReflectThroughPortal(glm::vec3 incomingVector, bool verbose);
+  void Setup(void);
+
   GLint type;
   Portal *linked;
 

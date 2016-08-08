@@ -12,7 +12,7 @@ main: main.o shader_loader.o camera.o model.o mesh.o portal.o presentation.o *.h
 main.o: main.cpp presentation.h
 	$(CC) $(CPPFLAGS) main.cpp
 
-portal.o: portal.cpp portal.h presentation.h shader_loader.h
+portal.o: portal.cpp portal.h presentation.h shader_loader.h camera.h
 	$(CC) $(CPPFLAGS) portal.cpp
 
 presentation.o: presentation.cpp presentation.h
