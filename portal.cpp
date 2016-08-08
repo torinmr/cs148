@@ -124,17 +124,17 @@ mat4 Portal::GetView(glm::vec3 incomingDirection) {
     vec3 negative_n1 = -n1;
     vec3 rotation_axis = normalize(cross(negative_n1, n2));
     if (n1 == n2 || n1 == -n2) {
-      cout << "Special case" << endl;
+      // cout << "Special case" << endl;
       vec3 up_rotation_axis = normalize(cross(normal, up));
-      rotation_axis = rotate(normal, 3.14159f /2.0f, up_rotation_axis);
+      rotation_axis = rotate(normal, 3.14159f/2.0f, up_rotation_axis);
     }
-    cout << "rotation_axis: " << rotation_axis.x << " " << rotation_axis.y << " " << rotation_axis.z << endl;
+    // cout << "rotation_axis: " << rotation_axis.x << " " << rotation_axis.y << " " << rotation_axis.z << endl;
     float rotation_angle =
       orientedAngle(negative_n1, n2, rotation_axis);
-    cout << "Rotation_angle: " << rotation_angle << endl;
-    cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << endl;
+    // cout << "Rotation_angle: " << rotation_angle << endl;
+    // cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << endl;
     vec3 v2 = rotate(v1, rotation_angle, rotation_axis);
-    cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << endl;
+    // cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << endl;
     outgoingDirection = v2;
   } else {
     outgoingDirection = linked->normal;
