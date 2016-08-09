@@ -1,3 +1,4 @@
+#include <bitset>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -71,8 +72,6 @@ void free_resources(void) {
 }
 
 void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
-  glStencilMask(0x00);
-
   glUseProgram(shader);
 
   glm::mat4 model;
@@ -96,28 +95,71 @@ void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
 }
 
 void recursiveRender(glm::mat4 view, glm::mat4 projection,
-                     GLuint depth) {
+                     GLuint depth, GLuint stencil) {
+  cout << endl;
+  cout << "Depth: " << depth << endl;
+  cout << bitset<8>(stencil) << endl;
+
+  GLuint lastPortal = stencil >> (2*(depth - 1)) & 3;
+  cout << "Last portal: " << lastPortal << endl;
+
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glStencilFunc(GL_EQUAL, stencil, (1<<(2*depth)) - 1);
+
+  glStencilMask(0x00);
+  renderScene(sl->getProgram(), view, projection);
+
+  if (depth >= 4) {
+    return;
+  }
+
   for (GLuint i = 0; i < 2; i++) {
+    if (lastPortal == 1 && i+1 == 2) { continue; }
+    if (lastPortal == 2 && i+1 == 1) { continue; }
     if (portals[i] != nullptr) {
+      portals[i]->Draw(portalSl->getProgram(), view, projection);
+    }
+  }
+
+  for (GLuint i = 0; i < 2; i++) {
+    if (lastPortal == 1 && i+1 == 2) { continue; }
+    if (lastPortal == 2 && i+1 == 1) { continue; }
+    if (portals[i] != nullptr) {
+      GLuint referenceValue = stencil + ((i + 1) << (depth*2));
+      GLuint mask = 3 << (depth*2);
+
+      glStencilFunc(GL_EQUAL, referenceValue, ~mask);
+      glStencilMask(mask);
       portals[i]->DrawStencil(portalStencilSl->getProgram(),
-                              view, projection, i + 1);
+                              view, projection);
+    }
+  }
 
-      if (getPresentationStage() >= 1 && portals[i]->IsLinked()) {
-        glm::mat4 portalView = portals[i]->GetView(camera);
+  if (getPresentationStage() >= 1) {
+    for (GLuint i = 0; i < 2; i++) {
+    if (lastPortal == 1 && i+1 == 2) { continue; }
+    if (lastPortal == 2 && i+1 == 1) { continue; }
+    if (portals[i] != nullptr && portals[i]->IsLinked()) {
+        view = portals[i]->GetView(camera);
 
-        glm::mat4 portalProjection = projection;
+        projection = projection;
         if (getPresentationStage() >= 3) {
           GLfloat distToPortal = distance(camera->cameraPos,
                                           portals[i]->center);
-          portalProjection =
-            glm::perspective(glm::radians(45.0f),
-                             (GLfloat) WIDTH / (GLfloat) HEIGHT,
-                             distToPortal+0.001f, 1000.0f);
+          projection = glm::perspective(glm::radians(45.0f),
+                                        (GLfloat) WIDTH / (GLfloat) HEIGHT,
+                                        distToPortal+0.1f, 1000.0f);
         }
 
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glStencilFunc(GL_EQUAL, i + 1, 0xFF);
-        renderScene(sl->getProgram(), portalView, portalProjection);
+        GLuint referenceValue = stencil + ((i + 1) << (depth*2));
+        glStencilFunc(GL_EQUAL, referenceValue, 0xFF);
+        glStencilMask(0x00);
+        if (getPresentationStage() >= 4) {
+          recursiveRender(view, projection, depth + 1, referenceValue);
+        } else {
+          glClear(GL_DEPTH_BUFFER_BIT);
+          renderScene(sl->getProgram(), view, projection);
+        }
       }
     }
   }
@@ -135,17 +177,7 @@ void render() {
                                 (GLfloat) WIDTH / (GLfloat) HEIGHT,
                                 0.1f, 1000.0f);
 
-  glStencilMask(0x00);
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  renderScene(sl->getProgram(), view, projection);
-
-  for (GLuint i = 0; i < 2; i++) {
-    if (portals[i] != nullptr) {
-      portals[i]->Draw(portalSl->getProgram(), view, projection);
-    }
-  }
-
-  recursiveRender(view, projection, 0);
+  recursiveRender(view, projection, 0, 0x00);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode,

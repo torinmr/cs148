@@ -47,23 +47,16 @@ void Portal::Print() {
   cout << "Linked: " << linked << endl;
 }
 
-void Portal::DrawStencil(GLuint shader, mat4 view,
-                         mat4 projection, GLuint bit) {
-  glStencilFunc(GL_ALWAYS, bit, 0xFF);
-  glStencilMask(0xFF);
-
+void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection) {
   mat4 preModel;
   // We bump it slightly off to avoid z-fighting.
-  preModel = translate(preModel, vec3(0.0f, 0.0f, -0.01f));
+  preModel = translate(preModel, vec3(0.0f, 0.0f, -0.005f));
   preModel = scale(preModel, vec3(0.9f, 0.9f, 0.9f));
 
   DrawCommon(shader, preModel, view, projection);
 }
 
 void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  glStencilMask(0x00);
-
   glUseProgram(shader);
 
   GLint typeLocation = glGetUniformLocation(shader, "type");
