@@ -30,7 +30,7 @@ class Portal {
   Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked);
 
   void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection, GLuint depth);
-  void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
+  void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection, GLfloat time);
   ViewInfo GetView(ViewInfo view);
   bool IsLinked(void) { return linked != nullptr; }
   void Print(void);

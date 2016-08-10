@@ -78,11 +78,14 @@ void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint depth
   DrawCommon(shader, preModel, view, projection);
 }
 
-void Portal::Draw(GLuint shader, mat4 view, mat4 projection) {
+void Portal::Draw(GLuint shader, mat4 view, mat4 projection, GLfloat time) {
   glUseProgram(shader);
 
   GLint typeLocation = glGetUniformLocation(shader, "type");
   glUniform1i(typeLocation, type);
+
+  GLint timeLocation = glGetUniformLocation(shader, "time");
+  glUniform1f(timeLocation, time);
 
   mat4 preModel;
   DrawCommon(shader, preModel, view, projection);

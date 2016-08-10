@@ -31,7 +31,7 @@ GLint lastPortal = -1;
 
 Model *myModel;
 
-const GLuint WIDTH = 1600, HEIGHT = 1000;
+const GLuint WIDTH = 1920, HEIGHT = 1080;
 
 bool init_resources(void) {
   sl = new ShaderLoader("vertex.glsl",
@@ -127,7 +127,7 @@ void recursiveRender(ViewInfo viewInfo, glm::mat4 projection,
   for (GLuint i = 0; i < 2; i++) {
     if (depth > 0 && lastPortal != i) { continue; }
     if (portals[i] != nullptr) {
-      portals[i]->Draw(portalSl->getProgram(), viewInfo.transform, projection);
+      portals[i]->Draw(portalSl->getProgram(), viewInfo.transform, projection, glfwGetTime());
     }
   }
 
@@ -310,8 +310,8 @@ int main(int argc, char* argv[])
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-  GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr,
-                                        nullptr);
+  GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL",
+                                        glfwGetPrimaryMonitor(), nullptr);
   if (window == nullptr)
     {
       std::cout << "Failed to create GLFW window" << std::endl;
