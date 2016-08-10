@@ -96,12 +96,16 @@ void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
 
 void recursiveRender(glm::mat4 view, glm::mat4 projection,
                      GLuint depth, GLuint stencil) {
-  cout << endl;
-  cout << "Depth: " << depth << endl;
-  cout << bitset<8>(stencil) << endl;
+  if (depth >= 4) {
+    return;
+  }
+
+  //  cout << endl;
+  //  cout << "Depth: " << depth << endl;
+  //  cout << bitset<8>(stencil) << endl;
 
   GLuint lastPortal = stencil >> (2*(depth - 1)) & 3;
-  cout << "Last portal: " << lastPortal << endl;
+  //  cout << "Last portal: " << lastPortal << endl;
 
   glClear(GL_DEPTH_BUFFER_BIT);
   glStencilFunc(GL_EQUAL, stencil, (1<<(2*depth)) - 1);
@@ -109,21 +113,15 @@ void recursiveRender(glm::mat4 view, glm::mat4 projection,
   glStencilMask(0x00);
   renderScene(sl->getProgram(), view, projection);
 
-  if (depth >= 4) {
-    return;
-  }
-
   for (GLuint i = 0; i < 2; i++) {
-    if (lastPortal == 1 && i+1 == 2) { continue; }
-    if (lastPortal == 2 && i+1 == 1) { continue; }
+    if (lastPortal != i+1 && depth > 0) { continue; }
     if (portals[i] != nullptr) {
       portals[i]->Draw(portalSl->getProgram(), view, projection);
     }
   }
 
   for (GLuint i = 0; i < 2; i++) {
-    if (lastPortal == 1 && i+1 == 2) { continue; }
-    if (lastPortal == 2 && i+1 == 1) { continue; }
+    if (lastPortal != i+1 && depth > 0) { continue; }
     if (portals[i] != nullptr) {
       GLuint referenceValue = stencil + ((i + 1) << (depth*2));
       GLuint mask = 3 << (depth*2);
@@ -137,15 +135,14 @@ void recursiveRender(glm::mat4 view, glm::mat4 projection,
 
   if (getPresentationStage() >= 1) {
     for (GLuint i = 0; i < 2; i++) {
-    if (lastPortal == 1 && i+1 == 2) { continue; }
-    if (lastPortal == 2 && i+1 == 1) { continue; }
-    if (portals[i] != nullptr && portals[i]->IsLinked()) {
+      if (lastPortal != i+1 && depth > 0) { continue; }
+      if (portals[i] != nullptr && portals[i]->IsLinked()) {
         view = portals[i]->GetView(camera);
 
         projection = projection;
         if (getPresentationStage() >= 3) {
           GLfloat distToPortal = distance(camera->cameraPos,
-                                          portals[i]->center);
+                                        portals[i]->center);
           projection = glm::perspective(glm::radians(45.0f),
                                         (GLfloat) WIDTH / (GLfloat) HEIGHT,
                                         distToPortal+0.1f, 1000.0f);

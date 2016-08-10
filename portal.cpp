@@ -53,6 +53,18 @@ void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection) {
   preModel = translate(preModel, vec3(0.0f, 0.0f, -0.005f));
   preModel = scale(preModel, vec3(0.9f, 0.9f, 0.9f));
 
+  vec4 backgroundColor;
+  if (getPresentationStage() < 1 || this->linked == nullptr) {
+    backgroundColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  } else {
+    backgroundColor = vec4(0.53f, 0.81f, 0.98f, 1.0f);
+  }
+  glUseProgram(shader);
+  GLuint backgroundColorLoc = glGetUniformLocation(shader,
+                                                   "backgroundColor");
+  glUniform4f(backgroundColorLoc, backgroundColor.x,
+              backgroundColor.y, backgroundColor.z, backgroundColor.w);
+
   DrawCommon(shader, preModel, view, projection);
 }
 
