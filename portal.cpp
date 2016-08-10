@@ -47,7 +47,7 @@ void Portal::Print() {
   cout << "Linked: " << linked << endl;
 }
 
-void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection) {
+void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection, GLuint depth) {
   mat4 preModel;
   // We bump it slightly off to avoid z-fighting.
   preModel = translate(preModel, vec3(0.0f, 0.0f, -0.005f));
@@ -59,6 +59,16 @@ void Portal::DrawStencil(GLuint shader, mat4 view, mat4 projection) {
   } else {
     backgroundColor = vec4(0.53f, 0.81f, 0.98f, 1.0f);
   }
+  /*
+  } else if (depth == 0) {
+    backgroundColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+  } else if (depth == 1) {
+    backgroundColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+  } else if (depth == 2) {
+    backgroundColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+  } else if (depth == 3) {
+    backgroundColor = vec4(1.0f, 1.0f, 0.5f, 1.0f);
+  }*/
   glUseProgram(shader);
   GLuint backgroundColorLoc = glGetUniformLocation(shader,
                                                    "backgroundColor");
@@ -146,25 +156,26 @@ vec3 Portal::ReflectThroughPortal(glm::vec3 incomingVector, bool verbose) {
   return normalize(v2);
 }
 
-mat4 Portal::GetView(Camera *camera) {
-  vec3 outgoingDirection;
+ViewInfo Portal::GetView(ViewInfo input) {
+  ViewInfo result;
   if (getPresentationStage() >= 2) {
-    outgoingDirection = this->ReflectThroughPortal(camera->cameraFront, false);
+    result.direction = this->ReflectThroughPortal(input.direction, false);
   } else {
-    outgoingDirection = this->linked->normal;
+    result.direction = this->linked->normal;
   }
 
-  vec3 position;
-  if (getPresentationStage() >= 3) {
-    vec3 vecToPortal = normalize(this->center - camera->cameraPos);
+  if (getPresentationStage() >= 7) {
+    vec3 vecToPortal = normalize(this->center - input.position);
     vec3 vecFromPortal = this->ReflectThroughPortal(vecToPortal, false);
-    GLfloat distToPortal = distance(camera->cameraPos, this->center);
-    position = this->linked->center - vecFromPortal*distToPortal;
+    GLfloat distToPortal = distance(input.position, this->center);
+    result.position = this->linked->center - vecFromPortal*distToPortal;
   } else {
-    position = this->linked->center;
+    result.position = this->linked->center;
   }
-
-  return lookAt(position, position + outgoingDirection, this->linked->up);
+  result.transform = lookAt(result.position,
+                            result.position + result.direction,
+                            this->linked->up);
+  return result;
 }
 
 void Portal::Setup() {

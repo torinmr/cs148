@@ -14,6 +14,12 @@ struct Ray {
   glm::vec3 direction;
 };
 
+struct ViewInfo {
+  glm::vec3 position;
+  glm::vec3 direction;
+  glm::mat4 transform;
+};
+
 class Portal {
  public:
   // Create portal at a particular location.
@@ -23,9 +29,9 @@ class Portal {
   // Create a portal in the direction of the given ray.
   Portal(const Ray &ray, glm::vec3 up, GLint type, Portal *linked);
 
-  void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection);
+  void DrawStencil(GLuint shader, glm::mat4 view, glm::mat4 projection, GLuint depth);
   void Draw(GLuint shader, glm::mat4 view, glm::mat4 projection);
-  glm::mat4 GetView(Camera *camera);
+  ViewInfo GetView(ViewInfo view);
   bool IsLinked(void) { return linked != nullptr; }
   void Print(void);
 
