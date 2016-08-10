@@ -150,7 +150,7 @@ void recursiveRender(ViewInfo viewInfo, glm::mat4 projection,
         ViewInfo newViewInfo = portals[i]->GetView(viewInfo);
 
         projection = projection;
-        if (getPresentationStage() >= 7) {
+        if (getPresentationStage() >= 3) {
           GLfloat distToPortal = distance(viewInfo.position,
                                           portals[i]->center);
           projection = glm::perspective(glm::radians(45.0f),

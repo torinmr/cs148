@@ -164,7 +164,7 @@ ViewInfo Portal::GetView(ViewInfo input) {
     result.direction = this->linked->normal;
   }
 
-  if (getPresentationStage() >= 7) {
+  if (getPresentationStage() >= 3) {
     vec3 vecToPortal = normalize(this->center - input.position);
     vec3 vecFromPortal = this->ReflectThroughPortal(vecToPortal, false);
     GLfloat distToPortal = distance(input.position, this->center);
