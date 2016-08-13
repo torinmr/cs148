@@ -96,9 +96,6 @@ void renderScene(GLuint shader, glm::mat4 view,  glm::mat4 projection) {
 
 void recursiveRender(ViewInfo viewInfo, glm::mat4 projection,
                      GLuint depth, GLuint stencil) {
-  if (depth > 4) {
-    return;
-  }
 
   GLuint oldStencilMask = (1<<(2*depth)) - 1;
   GLuint newStencilMask = (1<<(2*(depth+1))) - 1;
@@ -123,6 +120,9 @@ void recursiveRender(ViewInfo viewInfo, glm::mat4 projection,
   glStencilMask(0x00);
   glClear(GL_DEPTH_BUFFER_BIT);
   renderScene(sl->getProgram(), viewInfo.transform, projection);
+  if (depth >= 4) {
+    return;
+  }
 
   for (GLuint i = 0; i < 2; i++) {
     if (depth > 0 && lastPortal != i) { continue; }
