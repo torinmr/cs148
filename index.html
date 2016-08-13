@@ -38,7 +38,9 @@
           <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
         </div>
 
-        <h1>
+        <p>You can see a video version of this report with a live demo <a href="https://www.youtube.com/watch?v=C2PqlxjEwy4">here!</a> Also, click View On GitHub above to see my source code.</p>
+
+<h1>
 <a id="problem-statement" class="anchor" href="#problem-statement" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Problem Statement</h1>
 
 <p>In this project, I set out to recreate the graphical effect made famous by the 2007 video game Portal, by Valve Corporation. In that game, the player is able to create two portals, one blue and one orange, and these portals are "linked." So, when a player looks through the blue portal, it is as if they are looking through it and out of the orange portal, and vice versa. The screenshot below shows the effect in action, and shows one interesting aspect of the effect - portals can be seen through recursively.</p>
@@ -50,6 +52,23 @@
 <p><img src="https://lh3.googleusercontent.com/8lCbA2mIwcw67WRdiJT39R2_tG4WkXlxBkw3yrGr17-iu8Q0XXFKCcBUCqb7I5AeiKOqZqP9VzALQnkDR6sq-FYezWXSv8Vg6oMAkDl8pfxqEwOu1niIGXv9Q1nOXWyaRExojk1Oa9qxfdpgkWB_sOyJIvCHBmo6fROWaXw1JtZqyC3L4RJY0im9Engye7gb8suqyFsRhumRBllGrvmwbw-SPuCRj0konUYhVDpwLKP8dX0zeHv-48pp-3mB_NuSstRI4W0QdAY6reaEYPQDwIZr2mw1KLe_h0TxbrgDcaCttVwKOCd-IjGGDseETBXgOsi0apjRP_Nj9q7ayG4118SAx-XvdMFfNOQk_-lYDMEsoAf1Lz4c78bri8_ciYUBfv6s5L2J3MICuPqQm5XtQLZT3hKxRQqID45ZvVaA7EYKfDNBf5Cpcg8WLsNafjcSvZXOkCL2DcX14r6_lMyrecrbl9huKR3JUCPzkvEVOgEP-AZPn2zIBGc5M6J31K3ohhZNEfsBoG-vq-RydV_P5tfMnegtT3_0YlUnG_IFhwCftGXrAma5_dXBSO3aPvPH2BQyWliyW4WdHIjNbezdy0z964yRKMY=w481-h374-no" alt=""></p>
 
 <p>As you might be able to imagine from the above description, this effect, like many things in graphics, would be quite easy to achieve using ray tracing - all one would have to do would be to properly generate the outgoing ray when a ray met a portal. However, since the inspiration for my project was a video game, I wanted to create this effect in real time, using rasterized graphics with OpenGL.</p>
+
+<h1>
+<a id="technical-description" class="anchor" href="#technical-description" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Technical Description</h1>
+
+<p>My basic approach to making this work was based on a comment made by one of my coworkers as I was discussing the project, and is based around the use of OpenGL's stencil buffer. The stencil buffer is similar to the depth buffer, in that the buffer does not appear on the screen, but is used to determine which future fragments will be discarded before being drawn to the screen. You can write to the stencil buffer in one draw call, and then on future draw calls it is possible to tell OpenGL to discard all fragments except those with a certain value in the stencil buffer. With this tool, I figured out a simple algorithm for rendering portals:</p>
+
+<p>1) Draw the normal scene without portals.
+2) Draw the portals, writing a different value to the stencil buffer for each portal - e.g. 1 for portal one, 2 for portal two.
+3) For each portal:
+  a) Position the camera facing out of the other portal.
+  b) Render the scene, with the stencil buffer condition set to only allow fragments corresponding to the this portal.</p>
+
+<p>Step 3a was by far the most difficult part of this algorithm to implement. The first problem was determining the proper angle for the view vector, as it depends both on the view vector coming into the first portal, and on the relationship between the orientations of the two portals. I did this by imagining that the second portal was placed back to back with the first, so that the view vector angle would be unmodified (as if the portals were simply a normal window). Then, I calculated what rotation would turn this imaginary second portal's orientation into the actual orientation, and applied this rotation to the incoming view vector.</p>
+
+<p>The second problem was determining the proper position for the camera facing out of the other portal. Simply placing the camera at the out portal's coordinates doesn't work, since this means that objects seen through the portal stay the same size, even as the viewer moves further away from the input portal. I eventually managed to calculate the proper position by computing the vector from the viewer's position to the input portal, rotating it through the same transformation applied to the view vector, and then walking the camera back along this vector from the output portal's position. This results in a camera placed behind the output portal, standing in the same relation to it that the viewer stands to the input portal.</p>
+
+<p>With the camera in the right place, all that remained was to avoid the problem of objects <em>behind</em> the output portal occluding the view through the portal, which I accomplished simply by setting the distance to the near plane in the projection matrix to be equal to the viewer's distance from the portal.</p>
       </section>
 
     </div>
