@@ -61,11 +61,15 @@
 
 <p>My basic approach to making this work was based on a comment made by one of my coworkers as I was discussing the project, and is based around the use of OpenGL's stencil buffer. The stencil buffer is similar to the depth buffer, in that the buffer does not appear on the screen, but is used to determine which future fragments will be discarded before being drawn to the screen. You can write to the stencil buffer in one draw call, and then on future draw calls it is possible to tell OpenGL to discard all fragments except those with a certain value in the stencil buffer. With this tool, I figured out a simple algorithm for rendering portals:</p>
 
-<p>1) Draw the normal scene without portals.
-2) Draw the portals, writing a different value to the stencil buffer for each portal - e.g. 1 for portal one, 2 for portal two.
-3) For each portal:
-  a) Position the camera facing out of the other portal.
-  b) Render the scene, with the stencil buffer condition set to only allow fragments corresponding to the this portal.</p>
+<p>1) Draw the normal scene without portals.</p>
+
+<p>2) Draw the portals, writing a different value to the stencil buffer for each portal - e.g. 1 for portal one, 2 for portal two.</p>
+
+<p>3) For each portal:</p>
+
+<p>a) Position the camera facing out of the other portal.</p>
+
+<p>b) Render the scene, with the stencil buffer condition set to only allow fragments corresponding to the this portal.</p>
 
 <p>Step 3a was by far the most difficult part of this algorithm to implement. The first problem was determining the proper angle for the view vector, as it depends both on the view vector coming into the first portal, and on the relationship between the orientations of the two portals. I did this by imagining that the second portal was placed back to back with the first, so that the view vector angle would be unmodified (as if the portals were simply a normal window). Then, I calculated what rotation would turn this imaginary second portal's orientation into the actual orientation, and applied this rotation to the incoming view vector.</p>
 
@@ -110,7 +114,7 @@
 
 <p>The technical design document for Narbacular Drop was used as a point of comparison: <a href="https://www.digipen.edu/fileadmin/website_data/gallery/game_websites/NarbacularDrop/">https://www.digipen.edu/fileadmin/website_data/gallery/game_websites/NarbacularDrop/</a></p>
 
-<p>The 3D model used in the demo is “Dust Level” by eCstatic on TurboSquid, itself based on a popular CounterStrike level.: <a href="http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230">http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230</a> </p>
+<p>The 3D model used in the demo is “Dust Level” by eCstatic on TurboSquid, itself based on a popular Counter-Strike level.: <a href="http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230">http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230</a> </p>
       </section>
 
     </div>
