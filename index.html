@@ -56,6 +56,9 @@
 <h1>
 <a id="technical-description" class="anchor" href="#technical-description" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Technical Description</h1>
 
+<h2>
+<a id="non-recursive-portal-rendering" class="anchor" href="#non-recursive-portal-rendering" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Non-recursive portal rendering</h2>
+
 <p>My basic approach to making this work was based on a comment made by one of my coworkers as I was discussing the project, and is based around the use of OpenGL's stencil buffer. The stencil buffer is similar to the depth buffer, in that the buffer does not appear on the screen, but is used to determine which future fragments will be discarded before being drawn to the screen. You can write to the stencil buffer in one draw call, and then on future draw calls it is possible to tell OpenGL to discard all fragments except those with a certain value in the stencil buffer. With this tool, I figured out a simple algorithm for rendering portals:</p>
 
 <p>1) Draw the normal scene without portals.
@@ -69,6 +72,18 @@
 <p>The second problem was determining the proper position for the camera facing out of the other portal. Simply placing the camera at the out portal's coordinates doesn't work, since this means that objects seen through the portal stay the same size, even as the viewer moves further away from the input portal. I eventually managed to calculate the proper position by computing the vector from the viewer's position to the input portal, rotating it through the same transformation applied to the view vector, and then walking the camera back along this vector from the output portal's position. This results in a camera placed behind the output portal, standing in the same relation to it that the viewer stands to the input portal.</p>
 
 <p>With the camera in the right place, all that remained was to avoid the problem of objects <em>behind</em> the output portal occluding the view through the portal, which I accomplished simply by setting the distance to the near plane in the projection matrix to be equal to the viewer's distance from the portal.</p>
+
+<h2>
+<a id="recursive-portal-rendering" class="anchor" href="#recursive-portal-rendering" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Recursive portal rendering</h2>
+
+<p>Rendering portals recursively becomes a bit more complicated, especially in the managing of the stencil buffer. The idea I came up with (which is actually pretty sub-optimal: see the next section) was to use the value in the stencil buffer as a bitfield, indicating exactly where in the portal hierarchy each fragment was. We saw above that three values were needed for the non-recursive case (0, 1, and 2), so I allocated two bits of the stencil buffer to each layer of portals. Thus, b00000000 represents a fragment in the "real world", b00000001 a fragment seen through portal 1, and b00000010 a fragment seen through portal 2. Then, b00000101 represents a fragment inside portal 1 inside portal 1, b00100101 a fragment inside portal 2 inside portal 1 inside portal 1, and so forth. Thus, whenever I'm rendering a view through several recursive portals, I know exactly which stencil buffer value to condition on to render only to those pixels contained within the appropriate nested set of portals.</p>
+
+<p>This approach works, and it is what is shown in my demo video and the code on GitHub. However, an obvious limitation of this approach is that it limits the depth of portal rendering - with an eight bit stencil buffer, only four levels of portals are possible. Noticing that we only need three distinct values and packing even tighter using base three gives us one more level, since 3^5 = 243 &lt; 256, but this would be annoying to implement.</p>
+
+<p>A better improvement is based on something I realized only after I implemented recursive rendering. In the absence of more than two portals, or any other reflective surfaces, it's easy to see that when you're looking through a given portal, the only portal you'll ever see inside of it is the same portal. So if you look through portal 1, your view ray comes out of portal 2, meaning that it is impossible for you to actually see portal 2. Thus, for any level after the first, only one bit is needed to represent the state of the pixel, meaning that a total of seven levels could be shown using an eight bit field.</p>
+
+<h2>
+<a id="comparison-to-other-approaches" class="anchor" href="#comparison-to-other-approaches" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Comparison to other approaches</h2>
       </section>
 
     </div>
