@@ -84,6 +84,33 @@
 
 <h2>
 <a id="comparison-to-other-approaches" class="anchor" href="#comparison-to-other-approaches" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Comparison to other approaches</h2>
+
+<p>While I did look for some prior art on rendering portals before starting my project, I intentionally didn't look at how these sources implemented portals until after I had implemented my approach, as I thought it would be interesting to compare and contrast what I came up with with what others had implemented.</p>
+
+<h3>
+<a id="thomas-rinsmas-portal-rendering-approach" class="anchor" href="#thomas-rinsmas-portal-rendering-approach" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Thomas Rinsma's portal rendering approach</h3>
+
+<p>My first source was <a href="https://th0mas.nl/2013/05/19/rendering-recursive-portals-with-opengl/">a blog post by Thomas Rinsma</a> about rendering recursive portals in OpenGL. Thomas's approach is similar to mine, but different (and superior) in an important detail: in his approach, he renders portals in a <em>depth first</em> manner, where the first portal is rendered and the complete view through it drawn before the second portal is rendered. This has the crucial benefit that it means he doesn't have to record different values to the stencil buffer for the different portals, since only one portal is being rendered at a time. So, the only thing he has to store in the stencil buffer is an integer representing how deep in the current portal stack that fragment is. Thus, his approach supports up to 255 levels of portals with an eight bit stencil buffer.</p>
+
+<p>One very clever aspect of his approach is how he handles restoring the stencil buffer when backtracking to a higher level after rendering a (nested) portal. In my approach, I reserved a bit (or two) for each level so that this could be done with a bitmask. Thomas's approach instead <em>increments</em> the stencil buffer when the portal is drawn for the first time, and then when backtracking draws the same portal again, but <em>decrementing</em> the stencil buffer instead, thus restoring it to its previous state.</p>
+
+<h3>
+<a id="narbacular-drops-portal-rendering-approach" class="anchor" href="#narbacular-drops-portal-rendering-approach" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Narbacular Drop's portal rendering approach</h3>
+
+<p>While I'm not sure exactly which approach the real game Portal used, I can make an educated guess based on the spiritual predecessor to Portal, Narbacular Drop. Narbacular Drop was a student project at Digipen with nearly identical mechanics to Portal, and the students responsible were hired by Valve to make Portal. Fortunately, Narbacular Drop's <a href="https://www.digipen.edu/fileadmin/website_data/gallery/game_websites/NarbacularDrop/">original technical design document</a> is available online, which describes how they achieved the effect. Interestingly, they did not use the stencil buffer at all. Instead, they rendered the view from the output portal onto a texture, which was then applied to wherever the input portal was placed. This has some interesting advantages over my approach - for example, there's no need to place the portal camera behind the output portal to draw things at the proper scale, since the texture itself will automatically appear smaller when the viewer is further from the portal. It would be interesting to implement this approach and compare its performance and complexity to the stencil buffer approach.</p>
+
+<h1>
+<a id="sources" class="anchor" href="#sources" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sources</h1>
+
+<p>Inspired by the game Portal (2007), by Valve Corporation.</p>
+
+<p>Starter code was based off of the example code from <a href="http://www.learnopengl.com">www.learnopengl.com</a>, by Joey de Vries.</p>
+
+<p>Thomas Rinsma’s blog post on rendering recursive portals was an inspiration and point of comparison: <a href="https://th0mas.nl/2013/05/19/rendering-recursive-portals-with-opengl/">https://th0mas.nl/2013/05/19/rendering-recursive-portals-with-opengl/</a></p>
+
+<p>The technical design document for Narbacular Drop was used as a point of comparison: <a href="https://www.digipen.edu/fileadmin/website_data/gallery/game_websites/NarbacularDrop/">https://www.digipen.edu/fileadmin/website_data/gallery/game_websites/NarbacularDrop/</a></p>
+
+<p>The 3D model used in the demo is “Dust Level” by eCstatic on TurboSquid, itself based on a popular CounterStrike level.: <a href="http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230">http://www.turbosquid.com/3d-models/free-blend-model-dust-level/631230</a> </p>
       </section>
 
     </div>
